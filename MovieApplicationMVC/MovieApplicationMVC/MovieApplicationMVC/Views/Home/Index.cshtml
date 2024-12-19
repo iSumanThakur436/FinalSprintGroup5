@@ -1,0 +1,270 @@
+﻿@model List<MovieApplicationMVC.Models.Movie>
+@{
+    Layout = null;
+    ViewBag.Title = "Movies";
+    var selectedGenre = ViewBag.SelectedGenre as string ?? "All";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>@ViewBag.Title</title>
+    <style>
+        /* General Styles */
+        .movie-card img {
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .carousel-item img {
+            object-fit: cover;
+            height: 100vh;
+        }
+
+        .carousel-caption {
+            bottom: 20%;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .carousel-control-prev-icon, .carousel-control-next-icon {
+            background-color: black;
+        }
+
+        /* Card Hover Effect */
+        .card {
+            border: none;
+            transition: transform 0.3s ease-in-out;
+        }
+
+            .card:hover {
+                transform: translateY(-10px);
+            }
+
+        /* Navbar & Carousel */
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+            background-color: transparent;
+        }
+
+        .carousel {
+            position: relative;
+            z-index: 0;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #212529;
+            color: white;
+            padding: 40px 0;
+        }
+
+        .footer ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+            .footer ul li a {
+                color: white;
+                text-decoration: none;
+            }
+
+                .footer ul li a:hover {
+                    text-decoration: underline;
+                }
+
+        /* Filter Buttons */
+        .btn {
+            text-decoration: none;
+            color: black;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+
+        .active-genre {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Carousel Section -->
+    <section class="carousel slide" id="movieCarousel" data-bs-ride="carousel">
+        <header class="py-3">
+            <div class="container d-flex justify-content-between align-items-center text-white">
+                <h2 class="m-0">MovieApp</h2>
+                <form class="d-flex w-50" id="searchForm" action="@Url.Action("SearchMovies", "Home")" method="get">
+                    <input id="searchInput" class="form-control me-2" type="search" placeholder="Search for Movies by Title, Actor, or Director..." aria-label="Search" name="keyword">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+
+                <div class="d-flex">
+                    @if (Session["UserId"] == null)
+                    {
+                        <!-- If user is not logged in -->
+                        <div class="d-flex gap-3">
+                            @Html.ActionLink("Login", "Login", "User", null, new { @class = "text-decoration-none text-white" })
+                            @Html.ActionLink("Register", "Register", "User", null, new { @class = "text-decoration-none text-white" })
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- If user is logged in -->
+                        <div class="d-flex gap-3">
+                            @Html.ActionLink("Profile", "Profile", "User", null, new { @class = "text-decoration-none text-white fw-bold" })
+                            @Html.ActionLink("Logout", "Logout", "User", null, new { @class = "text-decoration-none text-white fw-bold" })
+                        </div>
+                    }
+                </div>
+
+                <!--<div class="d-flex">-->
+                <!-- Register Button -->
+                <!--<a href="http://localhost:57881/User/Register" class="btn btn-register text-white me-2">
+        Register
+    </a>-->
+                <!-- Login Button -->
+                <!--<a href="http://localhost:57881/User/Login" class="btn btn-login text-white">
+            Login
+        </a>
+    </div>-->
+
+
+            </div>
+        </header>
+
+
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="https://images3.alphacoders.com/136/1362151.jpeg" class="d-block w-100" alt="Movie Banner 1">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Mufasa: The King</h5>
+                    <p>The wait is over. Watch Mufasa in theaters now!</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://i.ytimg.com/vi/g3JUbgOHgdw/maxresdefault.jpg" class="d-block w-100" alt="Movie Banner 2">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Pushpa 2 - Rule</h5>
+                    <p>The wait is over. Watch Pushpa 2 in theaters now!</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="https://images.hdqwalls.com/wallpapers/moana-2-imax-poster-yc.jpg" class="d-block w-100" alt="Movie Banner 3">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Moana 2</h5>
+                    <p>Catch live action and adrenaline-pumping matches.</p>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </section>
+
+
+    <!-- Recommended Movies -->
+    <section class="py-5">
+        <div class="container">
+            <h2>Trending Movies</h2>
+            <div class="row">
+                @foreach (var movie in Model)
+                {
+                    <div class="col-md-2 movie-card">
+                        <div class="card shadow-sm">
+                            <a href="@Url.Action("MovieDetails", "Home", new { id = movie.MovieId })">
+                                <img src="@movie.Poster" class="card-img-top" alt="Movie Poster">
+                            </a>
+                            <div class="card-body text-center">
+                                <h6 class="card-title">@movie.Title</h6>
+                                <p class="card-text text-muted">@movie.Genre</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Filter by Genre -->
+    <section class="py-5">
+        <div class="container">
+            <h3>Filter by Genre</h3>
+            <div>
+                <a href="#" class="btn genre-btn @(ViewBag.SelectedGenre == "All" ? "active-genre" : "")" data-genre="All">All</a>
+                <a href="#" class="btn genre-btn @(ViewBag.SelectedGenre == "Action" ? "active-genre" : "")" data-genre="Action">Action</a>
+                <a href="#" class="btn genre-btn @(ViewBag.SelectedGenre == "Comedy" ? "active-genre" : "")" data-genre="Comedy">Comedy</a>
+                <a href="#" class="btn genre-btn @(ViewBag.SelectedGenre == "Thriller" ? "active-genre" : "")" data-genre="Thriller">Thriller</a>
+            </div>
+
+            <hr />
+            <div id="movie-list">
+                @Html.Partial("_MovieCards", Model) <!-- Initial movie cards -->
+            </div>
+        </div>
+    </section>
+
+
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3"><h5>About Us</h5><p>Learn more about our company and mission.</p></div>
+                <div class="col-md-3"><h5>Quick Links</h5><ul><li><a href="#">Home</a></li><li><a href="#">Movies</a></li><li><a href="#">Contact</a></li></ul></div>
+                <div class="col-md-3"><h5>Contact</h5><p>Email: contact@movieapp.com</p><p>Phone: (123) 456-7890</p></div>
+                <div class="col-md-3"><h5>Follow Us</h5><a href="#" class="social-icon"><i class="fab fa-facebook"></i></a><a href="#" class="social-icon"><i class="fab fa-twitter"></i></a><a href="#" class="social-icon"><i class="fab fa-instagram"></i></a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery Script for AJAX -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function () {
+        $('.genre-btn').on('click', function (e) {
+            e.preventDefault();
+
+            var genre = $(this).data('genre');
+
+            // Update active genre button style
+            $('.genre-btn').removeClass('active-genre');
+            $(this).addClass('active-genre');
+
+            // Fetch filtered movies using AJAX
+            $.ajax({
+                url: '@Url.Action("FilterByGenre", "Home")',
+                type: 'GET',
+                data: { genre: genre },
+                success: function (data) {
+                    $('#movie-list').html(data); // Update movie list without refreshing the page
+                },
+                error: function () {
+                    alert('Error loading movies. Please try again.');
+                }
+            });
+        });
+    });
+    </script>
+
+
+</body>
+</html>
